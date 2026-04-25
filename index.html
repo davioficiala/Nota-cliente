@@ -1,0 +1,188 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+<meta charset="UTF-8">
+<title>Orçamento Art Look</title>
+
+<style>
+body {
+  font-family: Arial;
+  padding:20px;
+  background:#f2f2f2;
+}
+
+.box {
+  position: relative;
+  background: #ffffff;
+  padding: 15px;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: auto;
+  overflow: hidden;
+}
+
+/* LOGO FUNDO */
+.box::before {
+  content: "";
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 300px;
+  height: 300px;
+  background-image: url('logo.png');
+  background-size: contain;
+  background-repeat: no-repeat;
+  background-position: center;
+  transform: translate(-50%, -50%);
+  opacity: 0.08;
+  pointer-events: none;
+}
+
+input, textarea {
+  width:100%;
+  margin:5px 0;
+  padding:8px;
+}
+
+button {
+  padding:10px;
+  margin-top:5px;
+  border:none;
+  border-radius:5px;
+  cursor:pointer;
+}
+
+.btn-gerar { background:#007bff; color:#fff; }
+.btn-copiar { background:#28a745; color:#fff; }
+.btn-whats { background:#25D366; color:#fff; }
+
+pre {
+  background:#000;
+  color:#0f0;
+  padding:10px;
+  white-space:pre-wrap;
+}
+</style>
+
+</head>
+
+<body>
+
+<div class="box">
+<h2>📄 Orçamento - Art Look Reformas</h2>
+
+<h3>👤 Cliente</h3>
+<input id="nome" placeholder="Nome do cliente">
+<input id="telefone" placeholder="Telefone com DDD">
+<input id="endereco" placeholder="Endereço">
+
+<h3>🔧 Serviço</h3>
+<textarea id="servico" placeholder="Descrição do serviço"></textarea>
+
+<input id="valor" type="number" placeholder="Valor total">
+<input id="sinal" type="number" placeholder="Valor do sinal (entrada)">
+
+<button class="btn-gerar" onclick="gerar()">Gerar</button>
+<button class="btn-copiar" onclick="copiar()">Copiar</button>
+<button class="btn-whats" onclick="enviarWhats()">Enviar WhatsApp</button>
+
+<h3>Resultado:</h3>
+<pre id="resultado"></pre>
+
+</div>
+
+<script>
+
+// EMPRESA
+const empresa = {
+  nome: "ART LOOK REFORMAS",
+  telefone: "31971930843",
+  pix: "SUA CHAVE PIX AQUI"
+};
+
+let contador = 1;
+let textoFinal = "";
+
+function gerar() {
+
+  let nome = document.getElementById("nome").value;
+  let telefone = document.getElementById("telefone").value;
+  let endereco = document.getElementById("endereco").value;
+  let servico = document.getElementById("servico").value;
+  let valor = parseFloat(document.getElementById("valor").value);
+  let sinal = parseFloat(document.getElementById("sinal").value) || 0;
+
+  let restante = valor - sinal;
+  let cupons = Math.floor(valor / 200);
+
+  let numeros = [];
+  for (let i = 0; i < cupons; i++) {
+    numeros.push(contador++);
+  }
+
+  textoFinal = `
+🏢 *${empresa.nome}*
+
+━━━━━━━━━━━━━━━━━━━
+
+👤 *Cliente:* ${nome}
+📞 *Telefone:* ${telefone}
+📍 *Endereço:* ${endereco}
+
+━━━━━━━━━━━━━━━━━━━
+
+🔧 *Serviço:*
+${servico}
+
+━━━━━━━━━━━━━━━━━━━
+
+💰 *VALOR TOTAL:* R$ ${valor}
+
+📌 *Condição de Pagamento:*
+➡️ Sinal (entrada): R$ ${sinal}
+➡️ Restante na entrega: R$ ${restante}
+
+━━━━━━━━━━━━━━━━━━━
+
+🎁 *PROMOÇÃO*
+
+Você recebeu *${cupons} cupons* 🎟
+
+🔢 *Seus números:*
+${numeros.join(", ")}
+
+📊 Sorteio a cada 60 cupons
+🏆 Ganhe até 3 diárias grátis
+
+━━━━━━━━━━━━━━━━━━━
+
+💳 *Pagamento via Pix:*
+${empresa.pix}
+
+📲 *Contato:* ${empresa.telefone}
+
+━━━━━━━━━━━━━━━━━━━
+
+✔ Serviço com garantia
+✔ Qualidade e organização
+✔ Compromisso com prazo
+`;
+
+  document.getElementById("resultado").innerText = textoFinal;
+}
+
+function copiar() {
+  navigator.clipboard.writeText(textoFinal);
+  alert("Copiado!");
+}
+
+function enviarWhats() {
+  let telefone = document.getElementById("telefone").value;
+  let msg = encodeURIComponent(textoFinal);
+  window.open(`https://wa.me/55${telefone}?text=${msg}`, '_blank');
+}
+
+</script>
+
+</body>
+</html>
