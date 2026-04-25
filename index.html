@@ -1,3 +1,4 @@
+
 <!DOCTYPE html>
 <html lang="pt-br">
 <head>
@@ -21,21 +22,19 @@ body {
   overflow: hidden;
 }
 
-/* LOGO FUNDO */
-.box::before {
-  content: "";
+.marca {
   position: absolute;
   top: 50%;
   left: 50%;
-  width: 300px;
-  height: 300px;
-  background-image: url('logo.png');
-  background-size: contain;
-  background-repeat: no-repeat;
-  background-position: center;
+  width: 250px;
   transform: translate(-50%, -50%);
-  opacity: 0.08;
-  pointer-events: none;
+  opacity: 0.07;
+  z-index: 0;
+}
+
+.conteudo {
+  position: relative;
+  z-index: 1;
 }
 
 input, textarea {
@@ -55,6 +54,7 @@ button {
 .btn-gerar { background:#007bff; color:#fff; }
 .btn-copiar { background:#28a745; color:#fff; }
 .btn-whats { background:#25D366; color:#fff; }
+.btn-reset { background:#dc3545; color:#fff; }
 
 pre {
   background:#000;
@@ -63,12 +63,16 @@ pre {
   white-space:pre-wrap;
 }
 </style>
-
 </head>
 
 <body>
 
 <div class="box">
+
+<img src="logo.png" class="marca">
+
+<div class="conteudo">
+
 <h2>📄 Orçamento - Art Look Reformas</h2>
 
 <h3>👤 Cliente</h3>
@@ -85,10 +89,12 @@ pre {
 <button class="btn-gerar" onclick="gerar()">Gerar</button>
 <button class="btn-copiar" onclick="copiar()">Copiar</button>
 <button class="btn-whats" onclick="enviarWhats()">Enviar WhatsApp</button>
+<button class="btn-reset" onclick="resetar()">Resetar Cupons</button>
 
 <h3>Resultado:</h3>
 <pre id="resultado"></pre>
 
+</div>
 </div>
 
 <script>
@@ -100,7 +106,14 @@ const empresa = {
   pix: "SUA CHAVE PIX AQUI"
 };
 
-let contador = 1;
+// CONTADOR SALVO
+let contador = localStorage.getItem("contadorCupons");
+if (!contador) {
+  contador = 1;
+} else {
+  contador = parseInt(contador);
+}
+
 let textoFinal = "";
 
 function gerar() {
@@ -109,16 +122,27 @@ function gerar() {
   let telefone = document.getElementById("telefone").value;
   let endereco = document.getElementById("endereco").value;
   let servico = document.getElementById("servico").value;
-  let valor = parseFloat(document.getElementById("valor").value);
+
+  let valor = parseFloat(document.getElementById("valor").value) || 0;
   let sinal = parseFloat(document.getElementById("sinal").value) || 0;
 
   let restante = valor - sinal;
-  let cupons = Math.floor(valor / 200);
+
+  let cupons = 0;
+  if (valor >= 200) {
+    cupons = Math.floor(valor / 200);
+  }
 
   let numeros = [];
   for (let i = 0; i < cupons; i++) {
     numeros.push(contador++);
   }
+
+  // SALVA CONTADOR
+  localStorage.setItem("contadorCupons", contador);
+
+  let inicio = numeros.length > 0 ? numeros[0] : 0;
+  let fim = numeros.length > 0 ? numeros[numeros.length - 1] : 0;
 
   textoFinal = `
 🏢 *${empresa.nome}*
@@ -146,10 +170,14 @@ ${servico}
 
 🎁 *PROMOÇÃO*
 
-Você recebeu *${cupons} cupons* 🎟
+💰 Base: R$200 = 1 cupom
+
+🎟 Você recebeu *${cupons} cupons*
 
 🔢 *Seus números:*
 ${numeros.join(", ")}
+
+📊 *Você está participando com os números ${inicio} até ${fim}*
 
 📊 Sorteio a cada 60 cupons
 🏆 Ganhe até 3 diárias grátis
@@ -171,15 +199,23 @@ ${empresa.pix}
   document.getElementById("resultado").innerText = textoFinal;
 }
 
+// COPIAR
 function copiar() {
   navigator.clipboard.writeText(textoFinal);
   alert("Copiado!");
 }
 
+// WHATSAPP
 function enviarWhats() {
   let telefone = document.getElementById("telefone").value;
   let msg = encodeURIComponent(textoFinal);
   window.open(`https://wa.me/55${telefone}?text=${msg}`, '_blank');
+}
+
+// RESETAR CUPONS
+function resetar() {
+  localStorage.setItem("contadorCupons", 1);
+  alert("Cupons reiniciados!");
 }
 
 </script>
